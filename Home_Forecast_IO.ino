@@ -15,6 +15,7 @@
 */
 
 //#include "User_setup_cus.h"
+#include <Arduino.h>
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h>
 
@@ -30,7 +31,8 @@
 #include "percent.h"
 #include "altitude.h"
 
-#include <Adafruit_BME280.h>
+#include <Wire.h>
+#include "Adafruit_SHT31.h"
 
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
 TFT_eSprite img = TFT_eSprite(&tft); // Avoid flickering of display.
@@ -49,7 +51,7 @@ TFT_eSprite img = TFT_eSprite(&tft); // Avoid flickering of display.
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-Adafruit_BME280 bme; // I2C
+Adafruit_SHT31 sht31 = Adafruit_SHT31(); // I2C
 
 double temp = 0.0;
 double pa = 0.0;
@@ -68,9 +70,9 @@ void setup(void) {
 
   // default settings
   // (you can also pass in a Wire library object like &Wire2)
-  status = bme.begin(0x76);
+  status = sht31.begin(0x44);
   if (!status) {
-    Serial.println("Could not find a valid BME280 sensor, check wiring!");
+    Serial.println("Could not find a valid SHT31 sensor, check wiring!");
     while (1);
   }
 
@@ -104,10 +106,10 @@ void loop() {
   //tft.setTextColor(TFT_WHITE,TFT_BLACK);
   //tft.setTextSize(1);
   
-  temp = bme.readTemperature();
-  pa = bme.readPressure() / 100.0F;
-  humi = bme.readHumidity();
-  alt = bme.readAltitude(SEALEVELPRESSURE_HPA);
+  temp = sht31.readTemperature();
+  //pa = bme.readPressure() / 100.0F;
+  humi = sht31.readHumidity();
+  //alt = bme.readAltitude(SEALEVELPRESSURE_HPA);
   
 //  Serial.print("Temperature in deg C = ");
 //  Serial.println(bme.readTemperature());
@@ -124,9 +126,9 @@ void loop() {
   
   img.deleteSprite();
   display_temp(temp, "Mostly windy");
-  display_pressure(pa, "Press(Pa)");
+  //display_pressure(pa, "Press(Pa)");
   display_humidity(humi, "Humidity");
-  display_alt(alt, "ALT");
+  //display_alt(alt, "ALT");
 //  tft.loadFont(AA_FONT_SMALL);
 //  tft.setCursor(4, 4);
 //  tft.setTextColor(COLOR1, COLOR2);
